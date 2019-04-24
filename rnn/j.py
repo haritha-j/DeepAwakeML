@@ -15,15 +15,15 @@ def play_alert():
 
 
 #load test data
-inputFile = open("outputDrowsy.txt", 'r')
+inputFile = open("input/outputDrowsy.txt", 'r')
 records = inputFile.readlines()
 inputs =[]
 head_inputs = []
 eye_inputs = []
 mouth_inputs = []
 indices = []
-#labels = []
-memory = 5
+labels = []
+memory = 20
 
 for record in records:
     record_array = []
@@ -87,7 +87,7 @@ class LSTMTagger(nn.Module):
 model = LSTMTagger(INPUT_DIM, HIDDEN_DIM, OUTPUT_DIM)
 
 #load saved model
-model.load_state_dict(torch.load("myModel5.pt"))
+model.load_state_dict(torch.load("models/myModelm20Lr.001ep250.pt"))
 
 # run inference
 
@@ -97,6 +97,7 @@ with torch.no_grad():
         h = model.init_hidden()
         tag_scores, h = model(torch.FloatTensor(inputs[i-memory:i]), h)
         print (indices[i])
+        #print(labels[i])
         print(torch.round(tag_scores.squeeze()))
     #print(tag_scores)
 

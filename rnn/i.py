@@ -7,13 +7,13 @@ import torch.optim as optim
 import random
 
 #load training data
-inputFile = open("inpuBalanced.txt", 'r')
+inputFile = open("input/inpuBalanced.txt", 'r')
 records = inputFile.readlines()
 inputs =[]
 labels = []
 
 #set memory duration (x0.5s)
-memory=5
+memory=20
 
 for record in records:
     record_array = []
@@ -98,7 +98,7 @@ class LSTMTagger(nn.Module):
 model = LSTMTagger(INPUT_DIM, HIDDEN_DIM, OUTPUT_DIM)
 print(model)
 loss_function = nn.BCELoss()
-optimizer = optim.Adam(model.parameters(), lr=0.1)
+optimizer = optim.Adam(model.parameters(), lr=0.001)
 
 # See what the scores are before training
 # Note that element i,j of the output is the score for tag j for word i.
@@ -108,7 +108,7 @@ model.train()
 
 clip =5 #clipping stops exporting gradient problem
 
-for epoch in range(25):  # again, normally you would NOT do 300 epochs, it is toy data
+for epoch in range(250):  # again, normally you would NOT do 300 epochs, it is toy data
     h = model.init_hidden()
     print ("epoch")
     print (epoch)
@@ -162,4 +162,4 @@ with torch.no_grad():
     # Which is DET NOUN VERB DET NOUN, the correct sequence!
 
 
-torch.save(model.state_dict(), "myModelBalanced10xLR.pt")
+torch.save(model.state_dict(), "models/myModelm20Lr.001ep250.pt")
