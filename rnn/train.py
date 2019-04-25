@@ -14,8 +14,10 @@ labels = []
 
 #set memory duration (x0.5s)
 memory=20
-
+#y = 0
 for record in records:
+    #y+=1
+    #print(y)
     record_array = []
     record_split = record.split(",")
     record_array.append(float(record_split[1]))
@@ -59,7 +61,7 @@ OUTPUT_DIM = 1
 
 class LSTMTagger(nn.Module):
 
-    def __init__(self, input_dim, hidden_dim, tagset_size, n_layers=1):
+    def __init__(self, input_dim, hidden_dim, tagset_size, n_layers=2):
         super(LSTMTagger, self).__init__()
         self.hidden_dim = hidden_dim
         self.n_layers = n_layers
@@ -108,7 +110,7 @@ model.train()
 
 clip =5 #clipping stops exporting gradient problem
 
-for epoch in range(250):  # again, normally you would NOT do 300 epochs, it is toy data
+for epoch in range(200):  # again, normally you would NOT do 300 epochs, it is toy data
     h = model.init_hidden()
     print ("epoch")
     print (epoch)
@@ -142,7 +144,7 @@ for epoch in range(250):  # again, normally you would NOT do 300 epochs, it is t
 # See what the scores are after training
 h2 = model.init_hidden()
 with torch.no_grad():
-    inputs = inputs[61:100]
+    inputs = inputs[81:100]
     tag_score, h2 = model(torch.FloatTensor(inputs), h2)
     pred = torch.round(tag_score.squeeze())
       # printing output value, before rounding
@@ -161,5 +163,9 @@ with torch.no_grad():
     # 1 is the index of maximum value of row 2, etc.
     # Which is DET NOUN VERB DET NOUN, the correct sequence!
 
+torch.save(model.state_dict(), "models/myModelLargeM20Lr.001ep200lyrs2.pt")
 
-torch.save(model.state_dict(), "models/myModelm20Lr.001ep250.pt")
+#model architectures to try
+#two lstm layers
+#40 frame memory
+#10 frame memory

@@ -50,7 +50,7 @@ predictor = dlib.shape_predictor(predictor_path)
 
 i=0
 
-outFile= open("outputDrowsy.txt","w+")
+outFile= open("outputTrain.txt","w+")
 
 total_eye_ratio = 0
 total_mouth_ration = 0
@@ -224,7 +224,6 @@ for f in glob.glob(os.path.join(faces_folder_path, "*.png")):
     
 
     n = int(f[37:-4])
-    print 
     print(n)
     outFile.write("%i,%f," % (n,eye_ratio))
     outFile.write("%f," % (mouth_ratio))
