@@ -13,6 +13,14 @@ import dlib
 import glob
 import sys
 
+
+memory = 20
+right_hand_drive = False
+alert_window = 2
+threshold = 0.5
+model_file = "myModelLargeM40Lr.001ep250.pt"
+lstm_layers = 1
+
 #load LSTM module
 INPUT_DIM = 3
 HIDDEN_DIM = 128
@@ -20,7 +28,7 @@ OUTPUT_DIM = 1
 
 class LSTMTagger(nn.Module):
 
-    def __init__(self, input_dim, hidden_dim, tagset_size, n_layers=1):
+    def __init__(self, input_dim, hidden_dim, tagset_size, n_layers=lstm_layers):
         super(LSTMTagger, self).__init__()
         self.hidden_dim = hidden_dim
         self.n_layers = n_layers
@@ -59,7 +67,7 @@ class LSTMTagger(nn.Module):
 model = LSTMTagger(INPUT_DIM, HIDDEN_DIM, OUTPUT_DIM)
 
 #load saved model
-model.load_state_dict(torch.load("models/myModelm20Lr.001ep250.pt"))
+model.load_state_dict(torch.load("models/"+model_file))
 
 
 #function to get RGB image from kinect
@@ -77,7 +85,7 @@ def get_depth():
 
 #function to create a beeping sound
 def play_alert():
-    duration = 0.1  # seconds
+    duration = 0.2  # seconds
     freq = 440  # Hz
     os.system('play -nq -t alsa synth {} sine {}'.format(duration, freq))
 
@@ -88,7 +96,7 @@ def play_alert():
 image_width = 640
 image_height = 480
 
-right_hand_drive = False
+
 
 # 3D model points.
 model_points = np.array([
@@ -115,12 +123,13 @@ predictor = dlib.shape_predictor("../models/shape_predictor_68_face_landmarks.da
 inputs =[]
 indices = []
 #labels = []
-memory = 20
+
 
 
 #begin capturing feed 
 i =0
 if __name__ == "__main__":
+    positive_count = 0
     while 1:
         #get a frame from RGB camera
         img = get_video()
@@ -284,11 +293,18 @@ if __name__ == "__main__":
         with torch.no_grad():
             h = model.init_hidden()
             tag_scores, h = model(torch.FloatTensor(inputs), h)
-            #print(labels[i])
-            print(torch.round(tag_scores.squeeze()))
+            print(tag_scores.item())
+            if tag_scores.item()>=threshold:
+                positive_count+=1
+                
+            else:
+                positive_count = 0
+            if positive_count>1:
+                play_alert()
 
 
-        time.sleep(0.5)
+
+        time.sleep(0.3)
 
         # quit program when 'esc' key is pressed
         #k = cv2.waitKey(5) & 0xFF
